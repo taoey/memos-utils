@@ -7,7 +7,7 @@ import (
 )
 
 func TestClient_GetJSON(t *testing.T) {
-	c := util.NewHttpClient("http://localhost:8080")
+	c := util.NewHttpClient("http://localhost:8080", "123456")
 	var resp any
 	err := c.GetJSON("/memo/all_uids", nil, &resp)
 	if err != nil {

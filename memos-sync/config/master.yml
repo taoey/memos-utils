@@ -1,0 +1,4 @@
+# 服务器配置
+url: http://localhost:8080
+access_token: 123456
+db_filepath: /Users/th/Documents/memos-master/memos_prod.db

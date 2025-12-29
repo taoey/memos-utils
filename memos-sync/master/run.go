@@ -3,17 +3,40 @@ package master
 import (
 	"fmt"
 	"log"
+	"os"
 	"taoey/memos-utils/memos-sync/dao"
 	"taoey/memos-utils/memos-sync/util"
 
+	"github.com/olebedev/config"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-func Run() {
-	c := util.NewHttpClient("http://localhost:8080")
+var Config *config.Config //global config
 
+var (
+	accessPassword string
+	dbFilePath     string
+	url            string
+)
+
+func InitConf() {
+	pwd, _ := os.Getwd()
+	configPath := pwd + "/config/master.yml"
+	Config, _ = config.ParseYamlFile(configPath)
+
+	fmt.Println(util.MustJsonStr(Config))
+	accessPassword = Config.UString("access_token")
+	dbFilePath = Config.UString("db_filepath")
+	url = Config.UString("url")
+}
+
+func Run() {
+	// 初始化配置
+	InitConf()
+
+	c := util.NewHttpClient(url, accessPassword)
 	// 1、同步memos
 	var uids []string
 	err := c.GetJSON("/memo/all_uids", nil, &uids)
@@ -21,7 +44,7 @@ func Run() {
 		fmt.Println(err)
 	}
 
-	db, err := gorm.Open(sqlite.Open("/Users/th/Documents/memos-master/memos_prod.db"), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(dbFilePath), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info), // 打印 SQL
 	})
 	if err != nil {

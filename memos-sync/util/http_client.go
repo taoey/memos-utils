@@ -9,13 +9,15 @@ import (
 )
 
 type Client struct {
-	BaseURL string
-	HTTP    *http.Client
+	BaseURL     string
+	HTTP        *http.Client
+	AccessToken string
 }
 
-func NewHttpClient(baseURL string) *Client {
+func NewHttpClient(baseURL string, accessToken string) *Client {
 	return &Client{
-		BaseURL: baseURL,
+		BaseURL:     baseURL,
+		AccessToken: accessToken,
 		HTTP: &http.Client{
 			Timeout: 5 * time.Second,
 		},
@@ -46,6 +48,7 @@ func (c *Client) GetJSON(
 	}
 
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("X-Access-Token", c.AccessToken)
 
 	resp, err := c.HTTP.Do(req)
 	if err != nil {

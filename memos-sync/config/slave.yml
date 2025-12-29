@@ -1,0 +1,4 @@
+# 服务器配置
+ip_port: 0.0.0.0:8080
+access_token: 123456
+db_filepath: /Users/th/Documents/memos/memos_prod.db
