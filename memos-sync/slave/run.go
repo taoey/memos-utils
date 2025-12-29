@@ -41,9 +41,21 @@ func auth(next http.Handler) http.Handler {
 	})
 }
 
+var DB *gorm.DB
+
+func InitDB() {
+	var err error
+	DB, err = gorm.Open(sqlite.Open(dbFilePath), &gorm.Config{})
+	if err != nil {
+		fmt.Println(err)
+		panic("failed to connect database")
+	}
+}
+
 func Run() {
 	// 加载配置文件
 	InitConf()
+	InitDB()
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -79,24 +91,21 @@ func Run() {
 }
 
 func GetAllMemoUids() []string {
-	db, _ := gorm.Open(sqlite.Open(dbFilePath), &gorm.Config{})
 	// 获取全量的memos UID 列表
 	memoUids := []string{}
 	sql := "select uid from memo"
-	db.Raw(sql).Scan(&memoUids)
+	DB.Raw(sql).Scan(&memoUids)
 	return memoUids
 }
 
 func GetMemoDetailByUid(uid string) *dao.Memo {
-	db, _ := gorm.Open(sqlite.Open(dbFilePath), &gorm.Config{})
 
 	memo := &dao.Memo{}
-	db.Where("uid = ?", uid).First(&memo)
+	DB.Where("uid = ?", uid).First(&memo)
 	return memo
 }
 
 func GetMemoRelation() []*dao.MemoRelationDTO {
-	db, _ := gorm.Open(sqlite.Open(dbFilePath), &gorm.Config{})
 	sql := `
 		select a.type,b.uid,c.uid related_memo_uid
 		from memo_relation a  
@@ -104,19 +113,19 @@ func GetMemoRelation() []*dao.MemoRelationDTO {
 		left join memo c on a.related_memo_id=c.id
 	`
 	result := []*dao.MemoRelationDTO{}
-	db.Raw(sql).Scan(&result)
+	DB.Raw(sql).Scan(&result)
 	return result
 }
 
 func GetMemoResource() []*dao.SlaveMemoResource {
-	db, _ := gorm.Open(sqlite.Open(dbFilePath), &gorm.Config{})
+	DB, _ := gorm.Open(sqlite.Open(dbFilePath), &gorm.Config{})
 	resources := []*dao.Resource{}
-	db.Find(&resources)
+	DB.Find(&resources)
 
 	slaveResources := []*dao.SlaveMemoResource{}
 	for _, item := range resources {
 		memo := &dao.Memo{}
-		db.Where("id = ?", item.MemoID).First(&memo)
+		DB.Where("id = ?", item.MemoID).First(&memo)
 		slaveResources = append(slaveResources, &dao.SlaveMemoResource{
 			Resource: *item,
 			MemosUid: memo.UID,
