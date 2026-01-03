@@ -1,0 +1,6 @@
+# 参考 https://l2m2.top/2021/02/27/2021-02-27-using-yapf-in-vscode/
+[style]
+based_on_style = pep8
+INDENT_WIDTH = 4
+CONTINUATION_INDENT_WIDTH = 4
+COLUMN_LIMIT = 127
