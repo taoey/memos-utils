@@ -4,6 +4,8 @@ import time
 
 app = Flask(__name__)
 
+#输入自己的db路径
+DB_PATH = "/root/memos/memos/memos_prod.db"
 
 def update_memo_timestamps(db_path: str, target_uid: str, create_time):
     """
@@ -59,8 +61,7 @@ def update_create_time():
     if not create_time or not memos_name:
         abort(400, description="Missing 'create_time' or 'memos_name' parameter")
 
-    db_path = "/root/disk1/memos/memos/memos_prod.db"
-    update_memo_timestamps(db_path, memos_name, create_time)
+    update_memo_timestamps(DB_PATH, memos_name, create_time)
 
     resp = {"msg": "ok"}
     return jsonify(resp)

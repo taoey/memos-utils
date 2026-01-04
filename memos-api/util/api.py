@@ -4,7 +4,7 @@ import os
 import base64
 import mimetypes
 
-from config import CONFIG_DICT
+from util.config import CONFIG_DICT
 
 # --- 配置信息 ---
 MEMOS_API_URL = CONFIG_DICT.get("memos_api_url")
